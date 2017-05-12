@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        var ua = navigator.userAgent;
+        var phoneWidth = parseInt(window.screen.width), phoneScale = phoneWidth / 640;
+        if (/Android (\d+\.\d+)/.test(ua)) {
+            var version = parseFloat(RegExp.$1);
+            var qqv = ua.match(/MQQBrowser\/(\d+)/) ? ua.match(/MQQBrowser\/(\d+)/)[1] : 0;
+            if (version > 2.3 && qqv < 6) {
+                document.write('<meta name="viewport" content="width=640, minimum-scale = ' + phoneScale + ", maximum-scale = " + phoneScale + ', target-densitydpi=device-dpi,user-scalable=no">')
+            } else {
+                document.write('<meta name="viewport" content="width=640, target-densitydpi=device-dpi,user-scalable=no">')
+            }
+        } else {
+            document.write('<meta name="viewport" content="width=640, user-scalable=no, target-densitydpi=device-dpi">')
+        }
+    </script>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <link href="css/common.css" rel="stylesheet" type="text/css">
+    <script>
+        var css;
+        css = '<'+'link '+'href='+"css/common.css?v"+Math.random()+' rel='+"stylesheet "+'type='+"text/css"+'>';
+        document.write(css);
+        css = '<'+'link '+'href='+"css/index.css?v"+Math.random()+' rel='+"stylesheet "+'type='+"text/css"+'>';
+        document.write(css);
+        css = '<'+'link '+'href='+"css/animate.css?v"+Math.random()+' rel='+"stylesheet "+'type='+"text/css"+'>';
+        document.write(css);
+    </script>
+    <title>模板</title>
+</head>
+<body>
+<div class="container P_video">
+    <video src="video/video.mp4?v51" id="video"  width="640" x-webkit-airplay="true" webkit-playsinline playsinline airplay="allow" x5-video-player-type="h5" class="iosPreload"></video>
+</div>
+
+<div id="WebGL" class="container">
+    <div id="FPS"></div>
+</div>
+
+
+<div class="hp">
+    <div class="hp_box">
+        <img src="images/phone.png" class="phone">
+        <img src="images/weile.png" class="hp_tip">
+    </div>
+</div>
+<audio id="bgm" src="music/music.mp3?v1" preload="auto" loop="true" class="iosPreload"></audio>
+<script src="js/jquery-3.2.1.min.js"></script>
+
+
+<script src="js/three.js"></script>
+<script src="js/OrbitControls.js"></script>
+
+<script src="js/stats.min.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+<script>
+    var js;
+    js = '<' + 'script ' + 'src=' + "js/index.js?v" + Math.random() + '>' + '</' + 'script' + '>'
+    document.write(js)
+</script>
+</body>
+</html>

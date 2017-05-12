@@ -1,0 +1,16 @@
+*.png
+*.jpg
+*.mp3
+*.pptx
+*.mp4
+*.txt
+*.rar
+*.gif
+
+js/jquery-3.2.1.min.js
+js/OrbitControls.js
+js/Orienter.js
+js/stats.min.js
+js/three.js
+js/tool.js
+js/browser.js
