@@ -14,3 +14,4 @@ js/stats.min.js
 js/three.js
 js/tool.js
 js/browser.js
+js/dat.gui.min.js

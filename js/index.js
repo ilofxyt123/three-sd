@@ -64,13 +64,15 @@
     });
     var Utils = new function(){
         this.preloadImage = function(ImageURL,callback,realLoading){
+
             var rd = realLoading||false;
             var i,j,haveLoaded = 0;
             for(i = 0,j = ImageURL.length;i<j;i++){
                 (function(img, src) {
                     img.onload = function() {
+                        haveLoaded++;
                         main.loader.haveLoad+=1;
-                        console.log((main.loader.haveLoad+webgl.loader.haveLoad)/(119+webgl.loader.total))
+                        console.log((main.loader.haveLoad+webgl.loader.haveLoad)/(main.loader.total+webgl.loader.total))
                         var num = Math.ceil(haveLoaded / ImageURL.length* 100);
                         if(rd){
                             $(".num").html("- "+num + "% -");
@@ -223,14 +225,14 @@
         this.width = this.container.width();
         this.height = this.container.height();
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(45,this.width/this.height,1,230000);
+        this.camera = new THREE.PerspectiveCamera(45,this.width/this.height,1,410000);
         this.camera.position.set(0,300,10000);
 
         this.renderer = new THREE.WebGLRenderer({
             antialias:true,
             alpha:true,
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width,this.height);
         this.renderer.setClearColor(0x000000,1);//黑色
         this.container.append(this.renderer.domElement);
@@ -242,15 +244,14 @@
     };
 
     three.loadTexture = function(config){
-        console.log(config)
         config = config ? config : {};
         config.url = config.url ? config.url : "";
         config.wrapS = typeof config.wrapS == "boolean" ? config.wrapS :false;
         config.wrapT = typeof config.wrapT == "boolean" ? config.wrapT :false;
-        config.SuccessCallback = typeof config.SuccessCallback == "function" ? config.SuccessCallback :undefined;
+        config.SuccessCallback = typeof config.SuccessCallback == "function" ? config.SuccessCallback :function(){};
 
         var textureLoader = new THREE.TextureLoader();
-        var texture = textureLoader.load(config.url,config.SuccessCallback,undefined,function(){});
+        var texture = textureLoader.load(config.url,function(texture){config.SuccessCallback(texture)},undefined,function(){});
         if(config.wrapS){
             texture.wrapS = THREE.RepeatWrapping;
         }
@@ -270,20 +271,37 @@
         config.exponent = config.exponent ? config.exponent : 10;//灯光衰减速度，默认是10
 
         var light = new THREE.SpotLight(config.color,config.intensity,config.distance,config.angle,config.exponent);
-        light.position.x = 100;
-        light.position.y = 100;
-        light.position.z = 0;
+        if(config.position){
+            light.position.x = config.position.x;
+            light.position.y = config.position.y;
+            light.position.z = config.position.z;
+        }
+
         return light;
-    };//聚光灯
-    three.getPointLightHelper = function(spotLight){
+    };
+    three.getSpotLightHelper = function(spotLight){
         if(spotLight instanceof THREE.Light){
             return new THREE.SpotLightHelper(spotLight);
         }
-    };//增加聚光灯辅助工具,便与调试,return一个helper实例
+    };//照明弹辅助工具,便与调试,return一个helper实例
+    three.getPointLight = function(config){//丢在空中的照明弹,单点发光，不产生阴影
+        config = config ? config : {};
+        config.color = config.color ? config.color : 0xff0000;//颜色
+        config.intensity = typeof config.intensity == "number" ? config.intensity : 1 ;//光照强度
+        config.distance = typeof config.distance == "number" ? config.distance : 100 ;//光照影响的距离
+        config.position = config.position ? config.position :{x:0,y:0,z:0};//光源位置
+        config.visible = typeof config.visible == "boolean" ? config.visible : true;
+
+        console.log(config)
+        var light = new THREE.PointLight(config.color,config.intensity,config.distance);
+        light.position.set(config.position.x,config.position.y,config.position.z);
+        light.visible = config.visible;
+        return light;
+    };
     three.getDirectionalLight = function(config){
         config = config ? config : {};
         config.color = config.color ? config.color : 0xffffff;//颜色
-        config.intensity = config.intensity ? config.intensity : 1;//光线强度
+        config.intensity = typeof config.intensity == "number" ? config.intensity : 1;//光线强度
 
         var light = new THREE.DirectionalLight(config.color,config.intensity);
 
@@ -294,12 +312,26 @@
     };//平行方向光,return光线实例
     three.getAmbientLight = function(config){
         config = config ? config : {};
-        config.color = config.color ? config.color : 0xffffff;//颜色
+        config.color = config.color ? config.color : 0x0c0c0c;//颜色
         var light = new THREE.AmbientLight(config.color);
 
         return light;
     };//环境光,return光线实例
 
+
+    three.getSphereGeometry = function(config){
+        config = config ? config : {};
+        config.R = config.R ? config.R : 50;//球体半径,说明:在2:1的长图素材中，r取值为short/PI
+        config.Ws = config.Ws ? config.Ws :8;//分段数
+        config.Hs = config.Hs ? config.Hs :6;//分段数
+        config.phiStart = config.phiStart ? config.phiStart : 0;//0-2PI,x轴起点
+        config.phiLength = config.phiLength ? config.phiLength : 2*Math.PI;//0-2PI,2PI代表画整个球
+        config.thetaStart = config.thetaStart ? config.thetaStart : 0;//0-PI,y轴起点
+        config.thetaLength = config.thetaLength ? config.thetaLength : Math.PI;//0-PI,0.5PI代表上半个球
+
+        var geometry = new THREE.SphereGeometry(config.R,config.Ws,config.Hs,config.phiStart,config.phiLength,config.thetaStart,config.thetaLength);
+        return geometry;
+    };
 
     three.getSkyByCubeGeo = function(config){
         config = config ? config : {};
@@ -367,6 +399,9 @@
         var mesh = new THREE.Mesh(geometry,material);
         return mesh;
     };
+    three.getPointsSystem = function(config){
+
+    };
 
     three.getOrbitControls = function(config){
         config = config ? config : {};
@@ -380,6 +415,10 @@
     };
     three.addFps = function(){
         var s = new Stats();
+        s.setMode(0);
+        s.domElement.style.position = 'absolute';
+        s.domElement.style.left = '0px';
+        s.domElement.style.top = '0px';
         document.getElementById("FPS").appendChild(s.domElement);
         return s;
     };//return Stats实例
@@ -438,6 +477,14 @@
         this.renderer.setSize(this.width,this.height);
     };
 
+    var debugSettins = new function(){
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+    };
+    debugSettins.redraw = function(){
+        three.camera.position.set(this.x,this.y,this.z);
+    };
     var webgl = new function(){
         /*debug模式
         * 增加fps工具:webgl.fps = three.addFps()
@@ -458,6 +505,7 @@
         this.path = "images/scene/";
         this.galleryData = [
             {
+                name:"0",
                 index:0,
                 url:this.path+"0.png",
                 size:{x:300,y:300},
@@ -466,22 +514,25 @@
                 scale:{x:1,y:1,z:1},
             },
             {
+                name:"43",
                 index:43,
                 url:this.path+"43.png",
                 size:{x:527,y:453},
-                position:{x:0,y:0,z:-5000},
+                position:{x:-350,y:0,z:-5000},
                 rotate:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
             },
             {
+                name:"44",
                 index:44,
                 url:this.path+"44.png",
                 size:{x:230,y:800},
-                position:{x:0,y:0,z:-10000},
+                position:{x:350,y:0,z:-10000},
                 rotate:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
             },
             {
+                name:"45",
                 index:45,
                 url:this.path+"45.png",
                 size:{x:501,y:535},
@@ -490,6 +541,7 @@
                 scale:{x:1,y:1,z:1},
             },
             {
+                name:"46",
                 index:46,
                 url:this.path+"46.png",
                 size:{x:501,y:441},
@@ -498,6 +550,7 @@
                 scale:{x:1,y:1,z:1},
             },
             {
+                name:"47",
                 index:47,
                 url:this.path+"47.png",
                 size:{x:1267,y:435},
@@ -505,94 +558,185 @@
                 rotate:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
             },
+            {
+                name:"48",
+                index:48,
+                url:this.path+"spotLight3.png",
+                size:{x:737,y:735},
+                position:{x:0,y:0,z:-30000},
+                rotate:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+            },
+            {
+                name:"49",
+                index:49,
+                url:this.path+"pointLight1.png",
+                size:{x:720,y:828},
+                position:{x:0,y:0,z:-35000},
+                rotate:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+            },
+            {
+                index:50,
+                url:this.path+"spotLight2.png",
+                size:{x:784,y:736},
+                position:{x:0,y:0,z:-40000},
+                rotate:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+            },
+
         ];//画廊
         this.galleryGroup = undefined;
+        this.gallerySize = undefined;
 
         this.floorData = {
 
         };//地板
         this.floorGroup = undefined;
 
+        this.skyData = {};
+        this.skyGroup = undefined;
+
         this.loader = {
             haveLoad:0,
-            total:0,
-        }
+            total:this.galleryData.length,
+            complete:false
+        };
+
     };
 
     webgl.init = function(){
+        //画廊容器
+        this.gallerySize = (this.loader.total-1)*5000;
         this.galleryGroup = new THREE.Group();
         this.galleryGroup.name = "gallery";
         this.galleryGroup.position.set(0,300,0);
 
+        //地板容器
         this.floorGroup = new THREE.Group();
         this.floorGroup.name = "floor";
         this.floorGroup.position.set(0,0,0);
         this.floorGroup.rotation.set(-Math.PI/2,0,0);
 
+        this.skyGroup = new THREE.Group();
+        this.skyGroup.name = "sky";
 
         three.scene.add(this.galleryGroup);//画廊加入场景
         three.scene.add(this.floorGroup);//地板加入场景
+        three.scene.add(this.skyGroup);//天空加入场景
 
-        this.loader.total = this.galleryData.length;
+        this.setDebug();
 
-        // this.setDebug();
-
-        // if(this.debug){
-        //     this.person.direction = 0;
+        if(this.debug){
+            // this.person.direction = 0;
             this.fps = three.addFps();
-        // }
+
+            var gui = new dat.GUI();
+            gui.add(debugSettins, 'x', -100, 100).onChange(debugSettins.redraw);
+            gui.add(debugSettins, 'y', -100, 100).onChange(debugSettins.redraw);
+            gui.add(debugSettins, 'z', -100, 100).onChange(debugSettins.redraw);
+                //往菜单中添加x、y、z三个参数
+                //定义参数变化范围是 -100~100
+                //定义参数变化时调用redraw()函数
+        }
 
 
+
+        //添加地板
+        this.createFloor();
+
+        //添加背景
+        this.createSky();
+
+        //添加粒子
+        this.createPoints();
+
+        //添加光线
+        var ambientLight = three.getAmbientLight({
+            color:0xffffff
+        });
+        three.scene.add(ambientLight);
+
+        //加个光球
+        var sunLight = three.getPointLight({
+            color:"#ddddaa",
+            intensity:10,
+            position:{x:0,y:0,z:0},
+            distance:280000
+        });
+        var geo = three.getSphereGeometry({
+            R:500,
+            Ws:20,
+            Hs:20
+        });
+        var material = new THREE.MeshLambertMaterial({color:"rgba(46,69,119)"});
+        var mesh = new THREE.Mesh(geo,material);
+        mesh.position.set(0,500,-25000);
+        mesh.name = "sun";
+        mesh.add(sunLight);
+        // three.scene.add(mesh);
+
+
+
+    };
+    webgl.load = function(){
+        //图片添加到scene中
         for(var i =0; i<this.galleryData.length;i++){
-            var texture = three.loadTexture({
-                url:this.galleryData[i].url,
-                wrapT:true,
-                wrapS:true,
-                SuccessCallback:function(){
-                    console.log("加载完第"+i+"张纹理");
-                    webgl.loader.haveLoad++;
-                    if(main.loader.haveLoad){
-                        main.loadCallBack();
-                    }
-                }
-            });
             var planeGeo = three.getPlaneGeo({
                 width:this.galleryData[i].size.x,
                 height:this.galleryData[i].size.y,
             });
-            var material = new THREE.MeshBasicMaterial({map:texture,transparent:true});
+            // var material = new THREE.MeshBasicMaterial({transparent:true});
+            var material = new THREE.MeshLambertMaterial({transparent:true});
+
+            var texture = three.loadTexture({
+                url:this.galleryData[i].url,
+                wrapT:true,
+                wrapS:true,
+                SuccessCallback:function(texture){
+                    webgl.loader.haveLoad++;
+                    console.log("加载完第"+webgl.loader.haveLoad+"张纹理");
+                    console.log((webgl.loader.haveLoad+main.loader.haveLoad)/(main.loader.total+webgl.loader.total))
+                    if(webgl.loader.haveLoad == webgl.loader.total){webgl.loader.complete = true;}
+                    if(main.loader.complete){
+                        main.loadCallBack();
+                    }
+                }
+            });
+            material.map = texture;
             var mesh = new THREE.Mesh(planeGeo,material);
             mesh.position.set(this.galleryData[i].position.x,this.galleryData[i].position.y,this.galleryData[i].position.z);
             mesh.scale.set(this.galleryData[i].scale.x,this.galleryData[i].scale.y,this.galleryData[i].scale.z);
-            console.log(mesh);
-            this.galleryGroup.add(mesh);
+            mesh.name = this.galleryData[i].name;
+            webgl.galleryGroup.add(mesh);
         }
-
-        this.createFloor();
     };
     webgl.render = function(){
-        // if(this.debug){//debug模式下，镜头不会自动向前移动
+        if(this.debug){//debug模式下，镜头不会自动向前移动
             this.fps.update();
-        // }
+        }
 
         /*控制前进后退*/
         switch(this.person.direction){
             case 0:
                 break;
             case 1:
-                three.camera.position.z -= this.person.speed;
-                if(three.camera.position.z<=-25000 || three.camera.position.z>=10000){
-                    this.person.speed *= -1;
+                three.camera.position.z -= 20;
+                if(three.camera.position.z<=-this.gallerySize){
+                    this.person.direction = 2;
                 }
                 break;
             case 2:
                 if(three.camera.position.z>=10000){
                     this.person.direction = 1;
                 }
-                three.camera.position.z += this.person.speed;
+                three.camera.position.z += 20;
         };
 
-
+        switch(three.camera.position.z){
+            case this.galleryGroup.getObjectByName("48").position.z :
+                console.log("light3");
+        }
     };
     webgl.setPersonDirectionAhead = function(){
         this.person.direction = 1;
@@ -603,10 +747,47 @@
     webgl.setDebug = function(){
         this.debug = true;
     };
+
+    webgl.createSky = function(){
+        var plane = three.getPlaneGeo({
+            width:204800,
+            height:204800
+        });
+        var material = new THREE.MeshBasicMaterial();
+        var texture = three.loadTexture({
+            url:this.path+"skybg1.jpg",
+            SuccessCallback:function(texture){
+                material.map = texture;
+                var mesh = new THREE.Mesh(plane,material);
+                mesh.position.set(0,0,-100000);
+                three.scene.add(mesh)
+            }
+        });
+    };
     webgl.createFloor = function(){
         var plane = three.getPlaneGeo({
-            width:1
+            width:640,
+            height:100
         });
+        var material = new THREE.MeshBasicMaterial();
+        var long = -(this.loader.total-1)*5000;//路径总长度
+        three.loadTexture({
+            url:this.path+"road.png",
+            SuccessCallback:function(texture){
+                material.map = texture;
+                var mesh = new THREE.Mesh(plane,material);
+                mesh.rotation.set(-Math.PI/2,0,0);
+                for(var i =10000;i>long;i-=250){
+                    var road = mesh.clone();
+                    road.position.set(0,0,i);
+                    three.scene.add(road);
+                }
+
+            }
+        })
+    };
+    webgl.createPoints = function(){
+
     };
 
     var main = new function(){
@@ -768,33 +949,28 @@
 
         this.loader = {
             haveLoad:0,
-            total:0,
+            total:this.ImageList.length,
+            complete:false
         };
 
     };
     /***********************流程***********************/
     main.init=function(){
         three.init();
-
-        this.loader.total  = this.ImageList.length
-
         webgl.init();
-
-        this.loader.total = this.ImageList.length + webgl.loader.total;
-
     };
     main.start=function(){
         Utils.preloadImage(this.ImageList,function(){
-            if(webgl.loader.haveLoad == webgl.loader.total){
+            main.loader.complete = true;
+            if(webgl.loader.complete){
                 main.loadCallBack();
             }
         });
-
+        webgl.load();
     };
     main.loadCallBack = function(){
         this.addEvent();
         this.startRender();
-        console.log("图片加载完成，执行了回调");
     };
     main.top = function(){
         $(".top").removeClass("none");
@@ -868,11 +1044,11 @@
                 webgl.person.direction = 0;
                 if(main.touch.touchAllow){
                     if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向上滑动
-                        three.camera.position.z += 50;
+                        three.camera.position.z += 200;
                     }
 
                     if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)>3){//手指向上滑动
-                        three.camera.position.z -= 50;
+                        three.camera.position.z -= 200;
                     }
 
                     main.touch.lastY = e.originalEvent.changedTouches[0].pageY;
