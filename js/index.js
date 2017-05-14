@@ -233,6 +233,8 @@
             alpha:true,
         });
         // this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.autoClear = false;
+        // this.renderer.autoClearDepth = false;
         this.renderer.setSize(this.width,this.height);
         this.renderer.setClearColor(0x000000,1);//黑色
         this.container.append(this.renderer.domElement);
@@ -246,6 +248,7 @@
     three.loadTexture = function(config){
         config = config ? config : {};
         config.url = config.url ? config.url : "";
+        config.name = config.name ? config.name : "";
         config.wrapS = typeof config.wrapS == "boolean" ? config.wrapS :false;
         config.wrapT = typeof config.wrapT == "boolean" ? config.wrapT :false;
         config.SuccessCallback = typeof config.SuccessCallback == "function" ? config.SuccessCallback :function(){};
@@ -258,6 +261,7 @@
         if(config.wrapT){
             texture.wrapT = THREE.RepeatWrapping;
         }
+        texture.name = config.name;
         return texture;
 
     };
@@ -318,6 +322,21 @@
         return light;
     };//环境光,return光线实例
 
+    three.getSpriteMaterial = function(config){
+        config = config ? config : {};
+        config.opacity = typeof config.opacity == "number" ? config.opacity : 1;
+        config.transparent = typeof config.transparent == "boolean" ? config.transparent : true;
+        config.useScreenCoordinates = typeof config.useScreenCoordinates == "boolean" ? config.useScreenCoordinates : true;
+
+        var material = new THREE.SpriteMaterial({
+            opacity:config.opacity,
+            transparent:config.transparent,
+            useScreenCoordinates:config.useScreenCoordinates,
+        });
+
+        return material;
+
+    };
 
     three.getSphereGeometry = function(config){
         config = config ? config : {};
@@ -399,9 +418,7 @@
         var mesh = new THREE.Mesh(geometry,material);
         return mesh;
     };
-    three.getPointsSystem = function(config){
 
-    };
 
     three.getOrbitControls = function(config){
         config = config ? config : {};
@@ -497,120 +514,260 @@
         this.fps = undefined;//左上角fps
         this.orbit = undefined;//键盘+鼠标控制器
 
+        //第一视角
         this.person = {
-            direction:1,//1代表向前
-            speed:1,
-        };//第一视角
+            direction:1,//1代表向前,-1代表后退
+            speed:50,
+        };
 
+        //图片资源路径
         this.path = "images/scene/";
-        this.galleryData = [
-            {
+
+        //画廊
+        this.galleryData = {
+            pic0:{//0
                 name:"0",
                 index:0,
                 url:this.path+"0.png",
-                size:{x:300,y:300},
-                position:{x:0,y:0,z:0},
-                rotate:{x:0,y:0,z:0},
+                size:{x:300,y:300},//图片大小
+                position:{x:0,y:0,z:0},//在当前group中的相对位置
+                rotation:{x:0,y:0,z:0},//相对自身的中心旋转
                 scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,//loading完后赋值
+                needTouch:false,
+                space:5000,//占用空间
+                globalZ:0,
             },
-            {
+            pic1:{//1
                 name:"43",
                 index:43,
                 url:this.path+"43.png",
                 size:{x:527,y:453},
                 position:{x:-350,y:0,z:-5000},
-                rotate:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
+            pic2:{//2
                 name:"44",
                 index:44,
                 url:this.path+"44.png",
                 size:{x:230,y:800},
                 position:{x:350,y:0,z:-10000},
-                rotate:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
-                name:"45",
+            stone1:{//3
+                name:"stone1",
                 index:45,
                 url:this.path+"45.png",
                 size:{x:501,y:535},
                 position:{x:0,y:0,z:-15000},
-                rotate:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
-                name:"46",
+            stone2:{//4
+                name:"stone2",
                 index:46,
                 url:this.path+"46.png",
                 size:{x:501,y:441},
                 position:{x:0,y:0,z:-20000},
-                rotate:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
-                name:"47",
+            cloud1:{//5
+                name:"cloud1",
                 index:47,
                 url:this.path+"47.png",
                 size:{x:1267,y:435},
                 position:{x:0,y:0,z:-25000},
-                rotate:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
-                name:"48",
+            blueLight:{//6
+                name:"blueLight",
                 index:48,
                 url:this.path+"spotLight3.png",
                 size:{x:737,y:735},
-                position:{x:0,y:0,z:-30000},
-                rotate:{x:0,y:0,z:0},
+                position:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery2",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
+            pic7:{//7
                 name:"49",
                 index:49,
-                url:this.path+"pointLight1.png",
+                url:this.path+"spriteRed.png",
                 size:{x:720,y:828},
-                position:{x:0,y:0,z:-35000},
-                rotate:{x:0,y:0,z:0},
+                position:{x:0,y:0,z:0},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery3",
+                mesh:undefined,
+                needTouch:false,
+                space:5000//占用空间
             },
-            {
+            pic8:{//8
+                name:"pic8",
                 index:50,
-                url:this.path+"spotLight2.png",
+                url:this.path+"spriteBlue.png",
                 size:{x:784,y:736},
-                position:{x:0,y:0,z:-40000},
-                rotate:{x:0,y:0,z:0},
+                position:{x:0,y:0,z:-5000},
+                rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
+                group:"gallery3",
+                mesh:undefined,
+                needTouch:false,
+                space:0//占用空间
             },
+        };
+        this.gallery = {
+            gallery1:{
+                index:1,
+                name:"gallery1",
+                obj:undefined,//init后被赋值
+                space:0,//占用空间,z方向,计算后调整
+                position:{x:0,y:300}
+            },
+            gallery2:{
+                index:2,
+                name:"gallery2",
+                obj:undefined,
+                space:0,
+                position:{x:0,y:300}
+            },
+            gallery3:{
+                index:3,
+                name:"gallery3",
+                obj:undefined,
+                space:0,
+                position:{x:0,y:300}
+            },
+            gallery4:{
+                index:4,
+                name:"gallery4",
+                obj:undefined,
+                space:0,
+                position:{x:0,y:300}
+            },
+        };
+        this.sceneSize = 0;
 
-        ];//画廊
-        this.galleryGroup = undefined;
-        this.gallerySize = undefined;
-
+        //地板
         this.floorData = {
 
-        };//地板
+        };
         this.floorGroup = undefined;
 
-        this.skyData = {};
-        this.skyGroup = undefined;
+        //天空
+        this.skyData = {
+            sky1:{
+                name:"sky1",
+                url:this.path+"sky/"+"skybg1.jpg",
+                mesh:undefined,
+                group:"skyGroup1",
+                position:{x:0,y:0,z:-150000}
+            },
+            sky2:{
+                name:"sky2",
+                url:this.path+"sky/"+"skybg2.jpg",
+                mesh:undefined,
+                group:"skyGroup2",
+                position:{x:0,y:0,z:-200000}
+            }
+        };
+        this.skyGroup1 = undefined;
+        this.skyGroup2 = undefined;
+        this.skyGroup3 = undefined;
+
+        //平面光晕
+        this.spriteData = {
+            sprite1:{
+                name:"sprite1",
+                url:this.path + "spriteRed.png",
+                obj:undefined,
+                size:{x:180,y:207},
+                opacity:1,
+            },
+            sprite2:{
+                name:"sprite2",
+                url:this.path + "spriteBlue.png",
+                obj:undefined,
+                size:{x:784,y:736},
+                opacity:0.5,
+            }
+        };
+        this.OrthoCamera = undefined;
+        this.OrthoScene = undefined;
 
         this.loader = {
             haveLoad:0,
-            total:this.galleryData.length,
+            total:0,
             complete:false
         };
+
 
     };
 
     webgl.init = function(){
-        //画廊容器
-        this.gallerySize = (this.loader.total-1)*5000;
-        this.galleryGroup = new THREE.Group();
-        this.galleryGroup.name = "gallery";
-        this.galleryGroup.position.set(0,300,0);
+        this.loader.total = Object.keys(this.galleryData).length;
+
+        //n个画廊容器属性设置
+        for(var prop in this.gallery){
+            this.gallery[prop].obj = new THREE.Group();
+            this.gallery[prop].obj.name = this.gallery[prop].name;
+            three.scene.add(this.gallery[prop].obj);//n个画廊加进场景
+        }
+
+        //n个画廊长度分别设置、对每一个画廊物体设置全局位置globalZ
+        for(var prop in this.galleryData){//遍历画廊中物体占据的z方向空间
+
+            //n个画廊总长度
+            this.galleryData[prop].globalZ = -this.sceneSize;
+            this.sceneSize += this.galleryData[prop].space;
+            //某个画廊长度
+            this.gallery[this.galleryData[prop].group].space += this.galleryData[prop].space;
+        }
+
+        //平面相机
+        this.OrthoCamera = new THREE.OrthographicCamera(-three.width/2,three.width/2,three.height/2,-three.height/2,1,20000);
+        this.OrthoCamera.position.set(0,0,10000)
+        this.OrthoScene = new THREE.Scene();
+        this.OrthoScene.name = "OrthoScene";
+
+        //n个画廊位置分别调整
+        for(var prop in this.gallery){
+            var z=0;
+            for(var i = this.gallery[prop].index;i>1;i--){
+                z += this.gallery["gallery"+(i-1)].space;
+            }
+            this.gallery[prop].obj.position.set(this.gallery[prop].position.x,this.gallery[prop].position.y,-z);
+        }
+
+
 
         //地板容器
         this.floorGroup = new THREE.Group();
@@ -618,12 +775,15 @@
         this.floorGroup.position.set(0,0,0);
         this.floorGroup.rotation.set(-Math.PI/2,0,0);
 
-        this.skyGroup = new THREE.Group();
-        this.skyGroup.name = "sky";
+        this.skyGroup1 = new THREE.Group();
+        this.skyGroup1.name = "sky1";
+        this.skyGroup2 = new THREE.Group();
+        this.skyGroup2.name = "sky2";
+        this.skyGroup3 = new THREE.Group();
+        this.skyGroup3.name = "sky3";
 
-        three.scene.add(this.galleryGroup);//画廊加入场景
         three.scene.add(this.floorGroup);//地板加入场景
-        three.scene.add(this.skyGroup);//天空加入场景
+        three.scene.add(this.skyGroup1);//第一个天空加入场景
 
         this.setDebug();
 
@@ -650,6 +810,9 @@
 
         //添加粒子
         this.createPoints();
+
+        //添加光晕
+        this.createSprite();
 
         //添加光线
         var ambientLight = three.getAmbientLight({
@@ -681,16 +844,17 @@
     };
     webgl.load = function(){
         //图片添加到scene中
-        for(var i =0; i<this.galleryData.length;i++){
+        var galleryData = this.galleryData;
+        for(var prop in galleryData){
             var planeGeo = three.getPlaneGeo({
-                width:this.galleryData[i].size.x,
-                height:this.galleryData[i].size.y,
+                width:galleryData[prop].size.x,
+                height:galleryData[prop].size.y,
             });
             // var material = new THREE.MeshBasicMaterial({transparent:true});
             var material = new THREE.MeshLambertMaterial({transparent:true});
 
             var texture = three.loadTexture({
-                url:this.galleryData[i].url,
+                url:galleryData[prop].url,
                 wrapT:true,
                 wrapS:true,
                 SuccessCallback:function(texture){
@@ -705,10 +869,12 @@
             });
             material.map = texture;
             var mesh = new THREE.Mesh(planeGeo,material);
-            mesh.position.set(this.galleryData[i].position.x,this.galleryData[i].position.y,this.galleryData[i].position.z);
-            mesh.scale.set(this.galleryData[i].scale.x,this.galleryData[i].scale.y,this.galleryData[i].scale.z);
-            mesh.name = this.galleryData[i].name;
-            webgl.galleryGroup.add(mesh);
+            mesh.position.set(galleryData[prop].position.x,galleryData[prop].position.y,galleryData[prop].position.z);
+            mesh.rotation.set(galleryData[prop].rotation.x,galleryData[prop].rotation.y,galleryData[prop].rotation.z)
+            mesh.scale.set(galleryData[prop].scale.x,galleryData[prop].scale.y,galleryData[prop].scale.z);
+            mesh.name = galleryData[prop].name;
+            this.galleryData[prop].mesh = mesh;
+            this.gallery[galleryData[prop].group].obj.add(mesh);
         }
     };
     webgl.render = function(){
@@ -721,48 +887,101 @@
             case 0:
                 break;
             case 1:
-                three.camera.position.z -= 20;
-                if(three.camera.position.z<=-this.gallerySize){
-                    this.person.direction = 2;
+                three.camera.position.z -= this.person.speed;
+                if(three.camera.position.z<=-this.sceneSize){
+                    this.person.direction = -1;
                 }
                 break;
-            case 2:
+            case -1:
                 if(three.camera.position.z>=10000){
                     this.person.direction = 1;
                 }
-                three.camera.position.z += 20;
+                three.camera.position.z += this.person.speed;
         };
 
+        //切换
         switch(three.camera.position.z){
-            case this.galleryGroup.getObjectByName("48").position.z :
-                console.log("light3");
+            case this.galleryData.pic0.globalZ :
+                console.log(this.galleryData.pic0.name);
+                break;
+            case this.galleryData.pic1.globalZ :
+                console.log(this.galleryData.pic1.name);
+                break;
+            case this.galleryData.pic2.globalZ :
+                console.log(this.galleryData.pic2.name);
+                break;
+            case this.galleryData.stone1.globalZ :
+                console.log(this.galleryData.stone1.name);
+                break;
+            case this.galleryData.stone2.globalZ :
+                console.log(this.galleryData.stone2.name);
+                break;
+            case this.galleryData.cloud1.globalZ :
+                console.log(this.galleryData.cloud1.name);
+                break;
+            case this.galleryData.blueLight.globalZ :
+                console.log(this.galleryData.blueLight.name);
+                if(this.person.direction == 1){
+                    three.scene.remove(this.skyGroup1);
+                    three.scene.add(this.skyGroup2);
+                }
+                if(this.person.direction == -1){
+                    three.scene.remove(this.skyGroup2);
+                    three.scene.add(this.skyGroup1);
+                }
+
+                break;
+            case this.galleryData.pic7.globalZ :
+                console.log(this.galleryData.pic7.name);
+                break;
+            case this.galleryData.pic8.globalZ :
+                console.log(this.galleryData.pic8.name);
+                break;
         }
+
+        this.galleryData.blueLight.mesh.rotation.z +=0.005*this.person.direction;
+        this.galleryData.stone1.mesh.rotation.z += 0.002*this.person.direction;
+        this.galleryData.stone2.mesh.rotation.z += 0.002*this.person.direction;
+
+        three.renderer.render(this.OrthoScene,this.OrthoCamera);
     };
     webgl.setPersonDirectionAhead = function(){
         this.person.direction = 1;
     };
     webgl.setPersonDirectionBack = function(){
-        this.person.direction = 2;
+        this.person.direction = -1;
     };
     webgl.setDebug = function(){
         this.debug = true;
     };
 
     webgl.createSky = function(){
-        var plane = three.getPlaneGeo({
-            width:204800,
-            height:204800
-        });
-        var material = new THREE.MeshBasicMaterial();
-        var texture = three.loadTexture({
-            url:this.path+"skybg1.jpg",
-            SuccessCallback:function(texture){
-                material.map = texture;
-                var mesh = new THREE.Mesh(plane,material);
-                mesh.position.set(0,0,-100000);
-                three.scene.add(mesh)
-            }
-        });
+
+        var skyData = this.skyData;//skyData被修改，不会影响到this.skyData
+
+        for(var prop in skyData){
+            var planegeo = three.getPlaneGeo({
+                width:204800,
+                height:204800
+            });
+            var material = new THREE.MeshBasicMaterial();
+
+            var texture = three.loadTexture({
+                url:skyData[prop].url,
+                name:skyData[prop].name,
+                SuccessCallback:function(texture){
+
+                }
+            });
+
+            material.map = texture;
+            var mesh = new THREE.Mesh(planegeo,material);
+            webgl.skyData[prop].mesh = mesh;//存在sky1Data/sky2Data中
+            console.log(webgl.skyData[prop])
+            webgl[skyData[prop].group].add(mesh);//添加到对应的skyGroup
+            webgl[skyData[prop].group].position.set(0,0,skyData[prop].position.z);
+
+        }
     };
     webgl.createFloor = function(){
         var plane = three.getPlaneGeo({
@@ -788,6 +1007,28 @@
     };
     webgl.createPoints = function(){
 
+    };
+    webgl.createSprite = function(){
+
+        var width = three.width/2;
+        var height = three.height/2;
+
+        for(var prop in this.spriteData){
+            var texture = three.loadTexture({
+                url:this.spriteData[prop].url
+            });
+            var material = three.getSpriteMaterial({
+                transparent:true,
+                opacity:this.spriteData[prop].opacity,
+            });
+            material.map = texture;
+            var sprite = new THREE.Sprite(material);
+            sprite.name = this.spriteData[prop].name;
+            sprite.position.set(-(width-this.spriteData[prop].size.x/2),three.height/2-this.spriteData[prop].size.y/2,-5000)
+            // sprite.position.set(0,0,0);
+            sprite.scale.set(this.spriteData[prop].size.x,this.spriteData[prop].size.y,1);
+            this.OrthoScene.add(sprite);
+        }
     };
 
     var main = new function(){
@@ -1035,6 +1276,9 @@
             e.preventDefault();
         };
 
+        window.onresize = function(){
+            three.onresize();
+        };
         three.container.on({
             touchstart:function(e){
                 main.touch.StartY = e.originalEvent.changedTouches[0].pageY;
