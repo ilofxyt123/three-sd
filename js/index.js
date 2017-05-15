@@ -226,14 +226,14 @@
         this.height = this.container.height();
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45,this.width/this.height,1,410000);
-        this.camera.position.set(0,300,10000);
+        this.camera.position.set(0,400,5000);
 
         this.renderer = new THREE.WebGLRenderer({
             antialias:true,
             alpha:true,
         });
         // this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.autoClear = false;
+        this.renderer.autoClear = true;
         // this.renderer.autoClearDepth = false;
         this.renderer.setSize(this.width,this.height);
         this.renderer.setClearColor(0x000000,1);//黑色
@@ -516,8 +516,9 @@
 
         //第一视角
         this.person = {
-            direction:1,//1代表向前,-1代表后退
+            direction:0,//1代表向前,-1代表后退
             speed:50,
+            touchAllow:true,
         };
 
         //图片资源路径
@@ -525,124 +526,559 @@
 
         //画廊
         this.galleryData = {
-            pic0:{//0
-                name:"0",
+            tree1:{
+                name:"tree1",
                 index:0,
                 url:this.path+"0.png",
-                size:{x:300,y:300},//图片大小
+                size:{x:1000,y:1428},//图片大小
                 position:{x:0,y:0,z:0},//在当前group中的相对位置
                 rotation:{x:0,y:0,z:0},//相对自身的中心旋转
                 scale:{x:1,y:1,z:1},
                 group:"gallery1",
                 mesh:undefined,//loading完后赋值
                 needTouch:false,
-                space:5000,//占用空间
+                space:8000,//占用空间
                 globalZ:0,
+
+                number:2,
+                cloneData:[
+                    {
+                        position:{x:-300,y:600,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                    {
+                        position:{x:500,y:700,z:-3000},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    }
+                ],
             },
-            pic1:{//1
-                name:"43",
-                index:43,
-                url:this.path+"43.png",
+            zmqh:{
+                name:"zmqh",
+                index:1,
+                url:this.path+"1.png",
                 size:{x:527,y:453},
-                position:{x:-350,y:0,z:-5000},
+                position:{x:0,y:0,z:-1000},
                 rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
                 group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:5000//占用空间
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    }
+                ],
             },
-            pic2:{//2
-                name:"44",
-                index:44,
-                url:this.path+"44.png",
+
+            oldman:{
+                name:"oldman",
+                index:2,
+                url:this.path+"3.png",
                 size:{x:230,y:800},
-                position:{x:350,y:0,z:-10000},
+                position:{x:0,y:0,z:-8000},
                 rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
                 group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:5000//占用空间
+                space:1000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    }
+                ],
             },
-            stone1:{//3
-                name:"stone1",
-                index:45,
-                url:this.path+"45.png",
-                size:{x:501,y:535},
-                position:{x:0,y:0,z:-15000},
+            tree2:{
+                name:"tree2",
+                index:3,
+                url:this.path+"2.png",
+                size:{x:777,y:1011},//加载几何体时候用的大小
+                position:{x:0,y:0,z:-9000},
                 rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
                 group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:5000//占用空间
+                space:6000,//占用空间
+                globalZ:0,
+
+                number:2,
+                cloneData:[
+                    {
+                        position:{x:-400,y:500,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                    {
+                        position:{x:500,y:700,z:-1500},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    }
+                ],
             },
-            stone2:{//4
-                name:"stone2",
-                index:46,
-                url:this.path+"46.png",
-                size:{x:501,y:441},
-                position:{x:0,y:0,z:-20000},
-                rotation:{x:0,y:0,z:0},
-                scale:{x:1,y:1,z:1},
-                group:"gallery1",
-                mesh:undefined,
-                needTouch:false,
-                space:5000//占用空间
-            },
-            cloud1:{//5
+
+            cloud1:{
                 name:"cloud1",
-                index:47,
-                url:this.path+"47.png",
+                index:4,
+                url:this.path+"5.png",
                 size:{x:1267,y:435},
+                position:{x:-300,y:-300,z:-15000},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:500,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            tree3:{
+                name:"tree3",
+                index:4,
+                url:this.path+"2.png",
+                size:{x:777,y:1011},
+                position:{x:-400,y:0,z:-15500},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:500,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            deer:{
+                name:"deer",
+                index:4,
+                url:this.path+"4.png",
+                size:{x:542,y:699},
+                position:{x:0,y:-200,z:-16000},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:1000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            tree4:{
+                name:"tree4",
+                index:4,
+                url:this.path+"0.png",
+                size:{x:1000,y:1428},
+                position:{x:150,y:0,z:-17000},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:8000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+
+            oilLight:{
+                name:"oilLight",
+                index:4,
+                url:this.path+"6.png",
+                size:{x:384,y:800},
                 position:{x:0,y:0,z:-25000},
                 rotation:{x:0,y:0,z:0},
                 scale:{x:1,y:1,z:1},
                 group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:5000//占用空间
+                space:8000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
             },
-            blueLight:{//6
-                name:"blueLight",
-                index:48,
-                url:this.path+"spotLight3.png",
-                size:{x:737,y:735},
-                position:{x:0,y:0,z:0},
+
+            cloud2:{
+                name:"cloud2",
+                index:4,
+                url:this.path+"5.png",
+                size:{x:1267,y:435},
+                position:{x:350,y:-300,z:-33000},
                 rotation:{x:0,y:0,z:0},
-                scale:{x:1,y:1,z:1},
-                group:"gallery2",
+                scale:{x:-1,y:1,z:1},
+                group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:5000//占用空间
+                space:500,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
             },
-            pic7:{//7
-                name:"49",
-                index:49,
-                url:this.path+"spriteRed.png",
-                size:{x:720,y:828},
-                position:{x:0,y:0,z:0},
+            tree5:{
+                name:"tree5",
+                index:4,
+                url:this.path+"0.png",
+                size:{x:1000,y:1428},
+                position:{x:300,y:150,z:-33500},
                 rotation:{x:0,y:0,z:0},
-                scale:{x:1,y:1,z:1},
-                group:"gallery3",
+                scale:{x:-1,y:1,z:1},
+                group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:5000//占用空间
+                space:1000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
             },
-            pic8:{//8
-                name:"pic8",
-                index:50,
-                url:this.path+"spriteBlue.png",
-                size:{x:784,y:736},
-                position:{x:0,y:0,z:-5000},
+            house1:{
+                name:"house1",
+                index:4,
+                url:this.path+"7.png",
+                size:{x:415,y:225},
+                position:{x:-250,y:0,z:-34500},
                 rotation:{x:0,y:0,z:0},
-                scale:{x:1,y:1,z:1},
-                group:"gallery3",
+                scale:{x:4,y:4,z:1},
+                group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
-                space:0//占用空间
+                space:200,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
             },
+            house2:{
+                name:"house2",
+                index:4,
+                url:this.path+"8.png",
+                size:{x:203,y:126},
+                position:{x:100,y:-200,z:-34500},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:4,y:4,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            tree6:{
+                name:"tree6",
+                index:4,
+                url:this.path+"0.png",
+                size:{x:750,y:952},
+                position:{x:-450,y:150,z:-34700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:-1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:8000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+
+            Edison:{
+                name:"Edison",
+                index:4,
+                url:this.path+"0.png",
+                size:{x:750,y:952},
+                position:{x:-450,y:150,z:-42700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            circle1:{
+                name:"circle1",
+                index:4,
+                url:this.path+"0.png",
+                size:{x:750,y:952},
+                position:{x:-450,y:150,z:-34700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:-1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            circle2:{
+                name:"circle2",
+                index:4,
+                url:this.path+"0.png",
+                size:{x:750,y:952},
+                position:{x:-450,y:150,z:-34700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:-1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+
+
+
+
+            // stone1:{//3
+            //     name:"stone1",
+            //     index:5,
+            //     url:this.path+"45.png",
+            //     size:{x:501,y:535},
+            //     position:{x:0,y:0,z:-15000},
+            //     rotation:{x:0,y:0,z:0},
+            //     scale:{x:1,y:1,z:1},
+            //     group:"gallery1",
+            //     mesh:undefined,
+            //     needTouch:false,
+            //     space:5000,//占用空间
+            //     globalZ:0,
+            //
+            //     number:1,
+            //     cloneData:[
+            //         {
+            //             position:{x:0,y:0,z:0},
+            //             rotation:{x:0,y:0,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         }
+            //     ],
+            // },
+            // stone2:{//4
+            //     name:"stone2",
+            //     index:46,
+            //     url:this.path+"46.png",
+            //     size:{x:501,y:441},
+            //     position:{x:0,y:0,z:-20000},
+            //     rotation:{x:0,y:0,z:0},
+            //     scale:{x:1,y:1,z:1},
+            //     group:"gallery1",
+            //     mesh:undefined,
+            //     needTouch:false,
+            //     space:5000,//占用空间
+            //     globalZ:0,
+            //
+            //     number:2,
+            //     cloneData:[
+            //         {
+            //             position:{x:-300,y:0,z:0},
+            //             rotation:{x:0,y:0,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         },
+            //         {
+            //             position:{x:300,y:0,z:-1000},
+            //             rotation:{x:0,y:Math.PI,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         }
+            //     ],
+            // },
+            // cloud1:{//5
+            //     name:"cloud1",
+            //     index:47,
+            //     url:this.path+"47.png",
+            //     size:{x:1267,y:435},
+            //     position:{x:0,y:0,z:-25000},
+            //     rotation:{x:0,y:0,z:0},
+            //     scale:{x:1,y:1,z:1},
+            //     group:"gallery1",
+            //     mesh:undefined,
+            //     needTouch:false,
+            //     space:5000,//占用空间
+            //     globalZ:0,
+            //
+            //     number:1,
+            //     cloneData:[
+            //         {
+            //             position:{x:0,y:0,z:0},
+            //             rotation:{x:0,y:0,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         }
+            //     ],
+            // },
+            // blueLight:{//6
+            //     name:"blueLight",
+            //     index:48,
+            //     url:this.path+"spotLight3.png",
+            //     size:{x:737,y:735},
+            //     position:{x:0,y:0,z:0},
+            //     rotation:{x:0,y:0,z:0},
+            //     scale:{x:1,y:1,z:1},
+            //     group:"gallery2",
+            //     mesh:undefined,
+            //     needTouch:false,
+            //     space:5000,//占用空间
+            //     globalZ:0,
+            //
+            //     number:1,
+            //     cloneData:[
+            //         {
+            //             position:{x:0,y:0,z:0},
+            //             rotation:{x:0,y:0,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         }
+            //     ],
+            // },
+            // pic7:{//7
+            //     name:"49",
+            //     index:49,
+            //     url:this.path+"spriteRed.png",
+            //     size:{x:720,y:828},
+            //     position:{x:0,y:0,z:0},
+            //     rotation:{x:0,y:0,z:0},
+            //     scale:{x:1,y:1,z:1},
+            //     group:"gallery3",
+            //     mesh:undefined,
+            //     needTouch:false,
+            //     space:5000,//占用空间
+            //     globalZ:0,
+            //
+            //     number:1,
+            //     cloneData:[
+            //         {
+            //             position:{x:0,y:0,z:0},
+            //             rotation:{x:0,y:0,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         }
+            //     ],
+            // },
+            // pic8:{//8
+            //     name:"pic8",
+            //     index:50,
+            //     url:this.path+"spriteBlue.png",
+            //     size:{x:784,y:736},
+            //     position:{x:0,y:0,z:-5000},
+            //     rotation:{x:0,y:0,z:0},
+            //     scale:{x:1,y:1,z:1},
+            //     group:"gallery3",
+            //     mesh:undefined,
+            //     needTouch:false,
+            //     space:0,//占用空间
+            //     globalZ:0,
+            //
+            //     number:1,
+            //     cloneData:[
+            //         {
+            //             position:{x:0,y:0,z:0},
+            //             rotation:{x:0,y:0,z:0},
+            //             scale:{x:1,y:1,z:1},
+            //         }
+            //     ],
+            // },
         };
         this.gallery = {
             gallery1:{
@@ -650,28 +1086,28 @@
                 name:"gallery1",
                 obj:undefined,//init后被赋值
                 space:0,//占用空间,z方向,计算后调整
-                position:{x:0,y:300}
+                position:{x:0,y:500}
             },
             gallery2:{
                 index:2,
                 name:"gallery2",
                 obj:undefined,
                 space:0,
-                position:{x:0,y:300}
+                position:{x:0,y:500}
             },
             gallery3:{
                 index:3,
                 name:"gallery3",
                 obj:undefined,
                 space:0,
-                position:{x:0,y:300}
+                position:{x:0,y:500}
             },
             gallery4:{
                 index:4,
                 name:"gallery4",
                 obj:undefined,
                 space:0,
-                position:{x:0,y:300}
+                position:{x:0,y:500}
             },
         };
         this.sceneSize = 0;
@@ -682,13 +1118,14 @@
         };
         this.floorGroup = undefined;
 
-        //天空
+        //透视天空
         this.skyData = {
             sky1:{
                 name:"sky1",
                 url:this.path+"sky/"+"skybg1.jpg",
                 mesh:undefined,
                 group:"skyGroup1",
+                size:{x:64000,y:105000},
                 position:{x:0,y:0,z:-150000}
             },
             sky2:{
@@ -696,6 +1133,7 @@
                 url:this.path+"sky/"+"skybg2.jpg",
                 mesh:undefined,
                 group:"skyGroup2",
+                size:{x:204800,y:204800},
                 position:{x:0,y:0,z:-200000}
             }
         };
@@ -703,22 +1141,36 @@
         this.skyGroup2 = undefined;
         this.skyGroup3 = undefined;
 
+        //平面背景
+        this.bgData = {
+            bg1:{
+                name:"bg1",
+                url:this.path+"sky/"+"skybg1.jpg",
+                texture:undefined,
+            },
+            bg2:{
+                name:"bg2",
+                url:this.path+"sky/"+"skybg4.jpg?v2",
+                texture:undefined,
+            }
+        };
+
         //平面光晕
         this.spriteData = {
             sprite1:{
                 name:"sprite1",
                 url:this.path + "spriteRed.png",
                 obj:undefined,
-                size:{x:180,y:207},
-                opacity:1,
+                size:{x:360,y:414},
+                opacity:0.8,
             },
-            sprite2:{
-                name:"sprite2",
-                url:this.path + "spriteBlue.png",
-                obj:undefined,
-                size:{x:784,y:736},
-                opacity:0.5,
-            }
+            // sprite2:{
+            //     name:"sprite2",
+            //     url:this.path + "spriteBlue.png",
+            //     obj:undefined,
+            //     size:{x:784,y:736},
+            //     opacity:0.5,
+            // }
         };
         this.OrthoCamera = undefined;
         this.OrthoScene = undefined;
@@ -803,10 +1255,23 @@
 
 
         //添加地板
-        this.createFloor();
+        // this.createFloor();
 
         //添加背景
-        this.createSky();
+        // this.createSky();
+
+        for(var prop in this.bgData){
+            var texture = three.loadTexture({
+                url:this.bgData[prop].url,
+            });
+            texture.name = this.bgData[prop].name;
+            console.log(texture)
+            this.bgData[prop].texture = texture;
+        }
+        console.log(webgl.bgData);
+        three.scene.background = this.bgData.bg1.texture;
+
+
 
         //添加粒子
         this.createPoints();
@@ -851,7 +1316,7 @@
                 height:galleryData[prop].size.y,
             });
             // var material = new THREE.MeshBasicMaterial({transparent:true});
-            var material = new THREE.MeshLambertMaterial({transparent:true});
+            var material = new THREE.MeshLambertMaterial({transparent:true,side:THREE.DoubleSide});
 
             var texture = three.loadTexture({
                 url:galleryData[prop].url,
@@ -869,8 +1334,29 @@
             });
             material.map = texture;
             var mesh = new THREE.Mesh(planeGeo,material);
+
+            if(galleryData[prop].number>1){//是否需要克隆
+                var group = new THREE.Group();
+                group.name = galleryData[prop].name;
+
+                var cloneData = galleryData[prop].cloneData;//数组
+                for(var i = 0 ;i<galleryData[prop].number;i++){
+                    var cloneMesh = mesh.clone();
+                    cloneMesh.position.set(cloneData[i].position.x,cloneData[i].position.y,cloneData[i].position.z);
+                    cloneMesh.rotation.set(cloneData[i].rotation.x,cloneData[i].rotation.y,cloneData[i].rotation.z);
+                    cloneMesh.scale.set(cloneData[i].scale.x,cloneData[i].scale.y,cloneData[i].scale.z);
+                    group.add(cloneMesh);
+                }
+                group.position.set(galleryData[prop].position.x,galleryData[prop].position.y,galleryData[prop].position.z);
+                group.rotation.set(galleryData[prop].rotation.x,galleryData[prop].rotation.y,galleryData[prop].rotation.z);
+                group.scale.set(galleryData[prop].scale.x,galleryData[prop].scale.y,galleryData[prop].scale.z);
+                three.scene.add(group);
+                this.galleryData[prop].mesh = group;
+                continue;
+            }
+
             mesh.position.set(galleryData[prop].position.x,galleryData[prop].position.y,galleryData[prop].position.z);
-            mesh.rotation.set(galleryData[prop].rotation.x,galleryData[prop].rotation.y,galleryData[prop].rotation.z)
+            mesh.rotation.set(galleryData[prop].rotation.x,galleryData[prop].rotation.y,galleryData[prop].rotation.z);
             mesh.scale.set(galleryData[prop].scale.x,galleryData[prop].scale.y,galleryData[prop].scale.z);
             mesh.name = galleryData[prop].name;
             this.galleryData[prop].mesh = mesh;
@@ -881,6 +1367,7 @@
         if(this.debug){//debug模式下，镜头不会自动向前移动
             this.fps.update();
         }
+
 
         /*控制前进后退*/
         switch(this.person.direction){
@@ -893,7 +1380,7 @@
                 }
                 break;
             case -1:
-                if(three.camera.position.z>=10000){
+                if(three.camera.position.z>=5000){
                     this.person.direction = 1;
                 }
                 three.camera.position.z += this.person.speed;
@@ -901,49 +1388,53 @@
 
         //切换
         switch(three.camera.position.z){
-            case this.galleryData.pic0.globalZ :
-                console.log(this.galleryData.pic0.name);
+            case this.galleryData.tree1.globalZ :
+                console.log(this.galleryData.tree1.name);
                 break;
-            case this.galleryData.pic1.globalZ :
-                console.log(this.galleryData.pic1.name);
+            case this.galleryData.zmqh.globalZ :
+                console.log(this.galleryData.zmqh.name);
                 break;
-            case this.galleryData.pic2.globalZ :
-                console.log(this.galleryData.pic2.name);
+            case this.galleryData.oldman.globalZ :
+                console.log(this.galleryData.oldman.name);
                 break;
-            case this.galleryData.stone1.globalZ :
-                console.log(this.galleryData.stone1.name);
-                break;
-            case this.galleryData.stone2.globalZ :
-                console.log(this.galleryData.stone2.name);
+            case this.galleryData.tree2.globalZ :
+                console.log(this.galleryData.tree2.name);
                 break;
             case this.galleryData.cloud1.globalZ :
                 console.log(this.galleryData.cloud1.name);
+                this.person.direction = 0;
                 break;
-            case this.galleryData.blueLight.globalZ :
-                console.log(this.galleryData.blueLight.name);
+            case this.galleryData.tree3.globalZ :
+                console.log(this.galleryData.tree3.name);
+                break;
+            case this.galleryData.deer.globalZ :
+                console.log(this.galleryData.deer.name);
                 if(this.person.direction == 1){
-                    three.scene.remove(this.skyGroup1);
-                    three.scene.add(this.skyGroup2);
+                    // three.scene.remove(this.skyGroup1);
+                    // three.scene.add(this.skyGroup2);
+                    three.scene.background = this.bgData.bg2.texture;
                 }
                 if(this.person.direction == -1){
-                    three.scene.remove(this.skyGroup2);
-                    three.scene.add(this.skyGroup1);
+                    // three.scene.remove(this.skyGroup2);
+                    // three.scene.add(this.skyGroup1);
+                    three.scene.background = this.bgData.bg1.texture;
                 }
 
                 break;
-            case this.galleryData.pic7.globalZ :
-                console.log(this.galleryData.pic7.name);
+            case this.galleryData.tree4.globalZ :
+                console.log(this.galleryData.tree4.name);
                 break;
-            case this.galleryData.pic8.globalZ :
-                console.log(this.galleryData.pic8.name);
+            case this.galleryData.oilLight.globalZ :
+                console.log(this.galleryData.oilLight.name);
                 break;
         }
 
-        this.galleryData.blueLight.mesh.rotation.z +=0.005*this.person.direction;
-        this.galleryData.stone1.mesh.rotation.z += 0.002*this.person.direction;
-        this.galleryData.stone2.mesh.rotation.z += 0.002*this.person.direction;
+        // this.galleryData.blueLight.mesh.rotation.z +=0.005*this.person.direction;
+        // this.galleryData.stone1.mesh.rotation.z += 0.002*this.person.direction;
+        // this.galleryData.stone2.mesh.rotation.z += 0.002*this.person.direction;
 
-        three.renderer.render(this.OrthoScene,this.OrthoCamera);
+        // three.renderer.clearDepth();
+        // three.renderer.render(this.OrthoScene,this.OrthoCamera);
     };
     webgl.setPersonDirectionAhead = function(){
         this.person.direction = 1;
@@ -961,8 +1452,8 @@
 
         for(var prop in skyData){
             var planegeo = three.getPlaneGeo({
-                width:204800,
-                height:204800
+                width:skyData[prop].size.x,
+                height:skyData[prop].size.y
             });
             var material = new THREE.MeshBasicMaterial();
 
@@ -977,7 +1468,6 @@
             material.map = texture;
             var mesh = new THREE.Mesh(planegeo,material);
             webgl.skyData[prop].mesh = mesh;//存在sky1Data/sky2Data中
-            console.log(webgl.skyData[prop])
             webgl[skyData[prop].group].add(mesh);//添加到对应的skyGroup
             webgl[skyData[prop].group].position.set(0,0,skyData[prop].position.z);
 
@@ -1281,27 +1771,33 @@
         };
         three.container.on({
             touchstart:function(e){
+                console.log(three.camera.position.z)
                 main.touch.StartY = e.originalEvent.changedTouches[0].pageY;
                 main.touch.lastY = e.originalEvent.changedTouches[0].pageY;
             },
             touchmove:function(e){
+                if(!webgl.person.touchAllow){return;}
                 webgl.person.direction = 0;
-                if(main.touch.touchAllow){
-                    if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向上滑动
+                if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向上滑动
+                    if(three.camera.position.z<5000){
                         three.camera.position.z += 200;
                     }
 
-                    if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)>3){//手指向上滑动
-                        three.camera.position.z -= 200;
-                    }
-
-                    main.touch.lastY = e.originalEvent.changedTouches[0].pageY;
                 }
+
+                if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)>3){//手指向上滑动
+                    three.camera.position.z -= 200;
+                }
+
+                main.touch.lastY = e.originalEvent.changedTouches[0].pageY;
             },
             touchend:function(e){
-                if(main.touch.touchAllow){
+                if(webgl.person.touchAllow){
                     if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)<-30){//手指向上滑动
-                        webgl.setPersonDirectionBack();
+                        if(three.camera.position.z<5000){
+                            console.log(1)
+                            webgl.setPersonDirectionBack();
+                        }
                     }
                     if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)>30){
                         webgl.setPersonDirectionAhead();

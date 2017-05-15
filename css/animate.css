@@ -223,3 +223,43 @@
     -webkit-animation:ani-bgmRotate 1s linear 0s infinite forwards;
     animation:ani-bgmRotate 1s linear 0s infinite forwards;
 }
+
+
+@keyframes ani-speedline {
+    0%{
+        background-position:0 0;
+    }
+    100%{
+        background-position:-1280px 0;
+    }
+}
+
+@-webkit-keyframes ani-speedline {
+    0%{
+        background-position:0 0;
+    }
+    100%{
+        background-position:-1280px 0;
+    }
+}
+
+.ani-speedline{
+    -webkit-animation-name:ani-speedline;
+    -webkit-animation-duration: 0.5s;
+    /*-webkit-animation-timing-function: linear;*/
+    -webkit-animation-timing-function: steps(2,end);
+    /*-webkit-animation-delay: 2s;*/
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: normal;
+    -webkit-animation-play-state: running;
+
+    animation-name:ani-speedline;
+    animation-duration: 0.5s;
+    /*animation-timing-function: linear;*/
+    animation-timing-function: steps(2,end);
+    /*animation-delay: 2s;*/
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+    animation-play-state: running;
+    /* Safari and Chrome: */
+}

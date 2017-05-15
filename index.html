@@ -31,16 +31,26 @@
         css = '<'+'link '+'href='+"css/animate.css?v"+Math.random()+' rel='+"stylesheet "+'type='+"text/css"+'>';
         document.write(css);
     </script>
-    <title>模板</title>
+    <title>生迪</title>
+    <style>
+        .bg-pic{}
+    </style>
 </head>
 <body>
-<div class="container P_video">
-    <video src="video/video.mp4?v51" id="video"  width="640" x-webkit-airplay="true" webkit-playsinline playsinline airplay="allow" x5-video-player-type="h5" class="iosPreload"></video>
+<div class="container P_bg">
+    <img src="images/scene/sky/skybg1.jpg" class="bg-pic bg-pic1">
 </div>
+<!--<div class="container P_video">-->
+    <!--<video src="video/video.mp4?v51" id="video"  width="640" x-webkit-airplay="true" webkit-playsinline playsinline airplay="allow" x5-video-player-type="h5" class="iosPreload"></video>-->
+<!--</div>-->
 
 <div id="WebGL" class="container">
     <div id="FPS"></div>
+    <!--<div class="speedline ani-speedline"></div>-->
 </div>
+<style>
+    .speedline{width:640px;height:1050px;position:absolute;z-index:2;left:0;top:0;background-image:url("images/scene/speedline.png");background-position:0 0;}
+</style>
 
 
 <div class="hp">
