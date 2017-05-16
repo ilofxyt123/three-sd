@@ -500,7 +500,7 @@
         this.z = 0;
     };
     debugSettins.redraw = function(){
-        three.camera.position.set(this.x,this.y,this.z);
+        three.camera.lookAt({x:this.x,y:this.y,z:this.z});
     };
     var webgl = new function(){
         /*debug模式
@@ -519,6 +519,8 @@
             direction:0,//1代表向前,-1代表后退
             speed:50,
             touchAllow:true,
+            pause:false,
+            start:false,
         };
 
         //图片资源路径
@@ -863,37 +865,14 @@
                 ],
             },
 
-            Edison:{
-                name:"Edison",
-                index:4,
-                url:this.path+"0.png",
-                size:{x:750,y:952},
-                position:{x:-450,y:150,z:-42700},
-                rotation:{x:0,y:0,z:0},
-                scale:{x:1,y:1,z:1},
-                group:"gallery1",
-                mesh:undefined,
-                needTouch:false,
-                space:0,//占用空间
-                globalZ:0,
-
-                number:1,
-                cloneData:[
-                    {
-                        position:{x:0,y:0,z:0},
-                        rotation:{x:0,y:0,z:0},
-                        scale:{x:1,y:1,z:1},
-                    },
-                ],
-            },
             circle1:{
                 name:"circle1",
                 index:4,
-                url:this.path+"0.png",
-                size:{x:750,y:952},
-                position:{x:-450,y:150,z:-34700},
+                url:this.path+"10.png",
+                size:{x:650,y:767},
+                position:{x:0,y:0,z:-42700},
                 rotation:{x:0,y:0,z:0},
-                scale:{x:-1,y:1,z:1},
+                scale:{x:1,y:1,z:1},
                 group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
@@ -912,11 +891,11 @@
             circle2:{
                 name:"circle2",
                 index:4,
-                url:this.path+"0.png",
-                size:{x:750,y:952},
-                position:{x:-450,y:150,z:-34700},
+                url:this.path+"11.png",
+                size:{x:867,y:987},
+                position:{x:0,y:-50,z:-42700},
                 rotation:{x:0,y:0,z:0},
-                scale:{x:-1,y:1,z:1},
+                scale:{x:0.36,y:0.36,z:1},
                 group:"gallery1",
                 mesh:undefined,
                 needTouch:false,
@@ -932,7 +911,100 @@
                     },
                 ],
             },
+            Edison:{
+                name:"Edison",
+                index:4,
+                url:this.path+"9.png",
+                size:{x:953,y:1039},
+                position:{x:0,y:-50,z:-42700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:0.21,y:0.21,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:8000,//占用空间
+                globalZ:0,
 
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+
+
+            lightOuter:{
+                name:"lightOuter",
+                index:4,
+                url:this.path+"13.png",
+                size:{x:565,y:736},
+                position:{x:0,y:-100,z:-50700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            light1:{
+                name:"light1",
+                index:4,
+                url:this.path+"12.png",
+                size:{x:565,y:736},
+                position:{x:0,y:-100,z:-50700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:0.3,y:0.3,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:8000,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
+            lightPoint:{
+                name:"lightPoint",
+                index:4,
+                url:this.path+"14.png",
+                size:{x:565,y:736},
+                position:{x:0,y:-100,z:-50700},
+                rotation:{x:0,y:0,z:0},
+                scale:{x:0.001,y:0.001,z:1},
+                group:"gallery1",
+                mesh:undefined,
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:0,y:0,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                ],
+            },
 
 
 
@@ -1364,70 +1436,113 @@
         }
     };
     webgl.render = function(){
-        if(this.debug){//debug模式下，镜头不会自动向前移动
-            this.fps.update();
+        if(this.person.start){
+            if(this.debug){//debug模式下，镜头不会自动向前移动
+                this.fps.update();
+            }
+
+
+                /*控制前进后退*/
+                if(!this.person.pause){
+                    switch(this.person.direction){
+                        case 0:
+                            break;
+                        case 1:
+                            three.camera.position.z -= this.person.speed;
+                            if(three.camera.position.z<=-this.sceneSize){
+                                this.person.direction = -1;
+                            }
+                            break;
+                        case -1:
+                            if(three.camera.position.z>=5000){
+                                this.person.direction = 1;
+                            }
+                            three.camera.position.z += this.person.speed;
+                    };
+                }
+
+
+                //切换
+                switch(three.camera.position.z){
+                    case this.galleryData.tree1.globalZ :
+                        console.log(this.galleryData.tree1.name);
+                        break;
+                    case this.galleryData.zmqh.globalZ :
+                        console.log(this.galleryData.zmqh.name);
+                        break;
+                    case this.galleryData.oldman.globalZ :
+                        console.log(this.galleryData.oldman.name);
+                        break;
+                    case this.galleryData.tree2.globalZ :
+                        console.log(this.galleryData.tree2.name);
+                        break;
+                    case this.galleryData.cloud1.globalZ :
+                        console.log(this.galleryData.cloud1.name);
+                        break;
+                    case this.galleryData.tree3.globalZ :
+                        console.log(this.galleryData.tree3.name);
+                        break;
+                    case this.galleryData.deer.globalZ:
+                        console.log(this.galleryData.deer.name);
+                        if(this.person.direction == 1){
+                            // three.scene.remove(this.skyGroup1);
+                            // three.scene.add(this.skyGroup2);
+                            // three.scene.background = this.bgData.bg2.texture;
+                        }
+                        if(this.person.direction == -1){
+                            // three.scene.remove(this.skyGroup2);
+                            // three.scene.add(this.skyGroup1);
+                            // three.scene.background = this.bgData.bg1.texture;
+                        }
+
+                        break;
+                    case this.galleryData.tree4.globalZ :
+                        console.log(this.galleryData.tree4.name);
+                        break;
+                    case this.galleryData.oilLight.globalZ :
+                        console.log(this.galleryData.oilLight.name);
+                        break;
+                    case this.galleryData.light1.globalZ+500 :
+                        console.log(this.galleryData.light1.name);
+                        this.person.pause = true;
+                        if(this.person.direction == 1){
+                            this.galleryData.lightPoint.mesh.scale.x+=0.05;
+                            this.galleryData.lightPoint.mesh.scale.y+=0.05;
+
+                            if(this.galleryData.lightPoint.mesh.scale.x >= 5){
+                                this.person.pause = false;
+                                three.scene.background = this.bgData.bg2.texture;
+                            }
+                            break;
+                        }
+                        if(this.person.direction == -1){
+                            this.galleryData.lightPoint.mesh.scale.x-=0.05;
+                            this.galleryData.lightPoint.mesh.scale.y-=0.05;
+                            if(this.galleryData.lightPoint.mesh.scale.x <= 0.01){
+                                // this.galleryData.lightPoint.mesh.scale.x = 0
+                                this.person.pause = false;
+                                three.scene.background = this.bgData.bg1.texture;
+                            }
+                            break;
+                        }
+
+                    case this.galleryData.light1.globalZ :
+                        console.log(this.galleryData.light1.name);
+                        if(this.person.direction == 1){
+                            three.scene.background = this.bgData.bg2.texture;
+                            break;
+                        }
+                        if(this.person.direction == -1){
+                            three.scene.background = this.bgData.bg1.texture;
+                        }
+
+
+                }
+
+
+
         }
 
-
-        /*控制前进后退*/
-        switch(this.person.direction){
-            case 0:
-                break;
-            case 1:
-                three.camera.position.z -= this.person.speed;
-                if(three.camera.position.z<=-this.sceneSize){
-                    this.person.direction = -1;
-                }
-                break;
-            case -1:
-                if(three.camera.position.z>=5000){
-                    this.person.direction = 1;
-                }
-                three.camera.position.z += this.person.speed;
-        };
-
-        //切换
-        switch(three.camera.position.z){
-            case this.galleryData.tree1.globalZ :
-                console.log(this.galleryData.tree1.name);
-                break;
-            case this.galleryData.zmqh.globalZ :
-                console.log(this.galleryData.zmqh.name);
-                break;
-            case this.galleryData.oldman.globalZ :
-                console.log(this.galleryData.oldman.name);
-                break;
-            case this.galleryData.tree2.globalZ :
-                console.log(this.galleryData.tree2.name);
-                break;
-            case this.galleryData.cloud1.globalZ :
-                console.log(this.galleryData.cloud1.name);
-                this.person.direction = 0;
-                break;
-            case this.galleryData.tree3.globalZ :
-                console.log(this.galleryData.tree3.name);
-                break;
-            case this.galleryData.deer.globalZ :
-                console.log(this.galleryData.deer.name);
-                if(this.person.direction == 1){
-                    // three.scene.remove(this.skyGroup1);
-                    // three.scene.add(this.skyGroup2);
-                    three.scene.background = this.bgData.bg2.texture;
-                }
-                if(this.person.direction == -1){
-                    // three.scene.remove(this.skyGroup2);
-                    // three.scene.add(this.skyGroup1);
-                    three.scene.background = this.bgData.bg1.texture;
-                }
-
-                break;
-            case this.galleryData.tree4.globalZ :
-                console.log(this.galleryData.tree4.name);
-                break;
-            case this.galleryData.oilLight.globalZ :
-                console.log(this.galleryData.oilLight.name);
-                break;
-        }
 
         // this.galleryData.blueLight.mesh.rotation.z +=0.005*this.person.direction;
         // this.galleryData.stone1.mesh.rotation.z += 0.002*this.person.direction;
@@ -1777,7 +1892,8 @@
             },
             touchmove:function(e){
                 if(!webgl.person.touchAllow){return;}
-                webgl.person.direction = 0;
+                if(!webgl.person.start){webgl.person.start = true;};
+                webgl.person.pause = true;
                 if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向上滑动
                     if(three.camera.position.z<5000){
                         three.camera.position.z += 200;
@@ -1795,11 +1911,12 @@
                 if(webgl.person.touchAllow){
                     if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)<-30){//手指向上滑动
                         if(three.camera.position.z<5000){
-                            console.log(1)
+                            webgl.person.pause = false;
                             webgl.setPersonDirectionBack();
                         }
                     }
                     if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)>30){
+                        webgl.person.pause = false;
                         webgl.setPersonDirectionAhead();
                     }
                 }
