@@ -72,7 +72,7 @@
                     img.onload = function() {
                         haveLoaded++;
                         main.loader.haveLoad+=1;
-                        console.log((main.loader.haveLoad+webgl.loader.haveLoad)/(main.loader.total+webgl.loader.total))
+                        // console.log((main.loader.haveLoad+webgl.loader.haveLoad)/(main.loader.total+webgl.loader.total))
                         var num = Math.ceil(haveLoaded / ImageURL.length* 100);
                         if(rd){
                             $(".num").html("- "+num + "% -");
@@ -1396,8 +1396,8 @@
                 wrapS:true,
                 SuccessCallback:function(texture){
                     webgl.loader.haveLoad++;
-                    console.log("加载完第"+webgl.loader.haveLoad+"张纹理");
-                    console.log((webgl.loader.haveLoad+main.loader.haveLoad)/(main.loader.total+webgl.loader.total))
+                    // console.log("加载完第"+webgl.loader.haveLoad+"张纹理");
+                    // console.log((webgl.loader.haveLoad+main.loader.haveLoad)/(main.loader.total+webgl.loader.total))
                     if(webgl.loader.haveLoad == webgl.loader.total){webgl.loader.complete = true;}
                     if(main.loader.complete){
                         main.loadCallBack();
@@ -1462,7 +1462,7 @@
                 }
 
 
-                //切换
+                //到点切换
                 switch(three.camera.position.z){
                     case this.galleryData.tree1.globalZ :
                         console.log(this.galleryData.tree1.name);
