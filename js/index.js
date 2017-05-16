@@ -517,10 +517,11 @@
         //第一视角
         this.person = {
             direction:0,//1代表向前,-1代表后退
-            speed:50,
+            speed:-20,
             touchAllow:true,
             pause:false,
             start:false,
+            end:false,
         };
 
         //图片资源路径
@@ -1436,7 +1437,7 @@
         }
     };
     webgl.render = function(){
-        if(this.person.start){
+        if(this.person.start&&!this.person.end){
             if(this.debug){//debug模式下，镜头不会自动向前移动
                 this.fps.update();
             }
@@ -1444,21 +1445,32 @@
 
                 /*控制前进后退*/
                 if(!this.person.pause){
-                    switch(this.person.direction){
-                        case 0:
-                            break;
-                        case 1:
-                            three.camera.position.z -= this.person.speed;
-                            if(three.camera.position.z<=-this.sceneSize){
-                                this.person.direction = -1;
-                            }
-                            break;
-                        case -1:
-                            if(three.camera.position.z>=5000){
-                                this.person.direction = 1;
-                            }
-                            three.camera.position.z += this.person.speed;
-                    };
+                    // switch(this.person.direction){
+                    //     case 0:
+                    //         break;
+                    //     case 1:
+                    //         three.camera.position.z -= this.person.speed;
+                    //         if(three.camera.position.z<=-this.sceneSize){
+                    //             this.person.direction = -1;
+                    //         }
+                    //         break;
+                    //     case -1:
+                    //         if(three.camera.position.z>=5000){
+                    //             this.person.direction = 1;
+                    //         }
+                    //         three.camera.position.z += this.person.speed;
+                    // };
+                    if(three.camera.position.z+this.person.speed>5000){
+                        three.camera.position.z = 5000;
+                        webgl.person.pause = true;
+                    }
+                    else if((three.camera.position.z+this.person.speed)>-this.sceneSize||(three.camera.position.z+this.person.speed)<5000){
+                        three.camera.position.z+=this.person.speed;
+                    }
+                    else{
+                        three.camera.position.z = -this.sceneSize;
+                        this.person.end = true;
+                    }
                 }
 
 
@@ -1893,33 +1905,41 @@
             touchmove:function(e){
                 if(!webgl.person.touchAllow){return;}
                 if(!webgl.person.start){webgl.person.start = true;};
-                webgl.person.pause = true;
-                if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向上滑动
-                    if(three.camera.position.z<5000){
-                        three.camera.position.z += 200;
-                    }
+                // webgl.person.pause = true;
+                if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向下滑动
+                    // if(three.camera.position.z<5000){
+                    //     three.camera.position.z += 200;
+                    // }
+
+
+                    webgl.person.speed = (webgl.person.speed<-50)?-50:webgl.person.speed--;
+
+                    console.log(1)
 
                 }
 
                 if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)>3){//手指向上滑动
-                    three.camera.position.z -= 200;
+                    // three.camera.position.z -= 200;
+
+                    webgl.person.speed = webgl.person.speed>50?50:webgl.person.speed++;
+                    console.log(2)
                 }
 
                 main.touch.lastY = e.originalEvent.changedTouches[0].pageY;
             },
             touchend:function(e){
-                if(webgl.person.touchAllow){
-                    if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)<-30){//手指向上滑动
-                        if(three.camera.position.z<5000){
-                            webgl.person.pause = false;
-                            webgl.setPersonDirectionBack();
-                        }
-                    }
-                    if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)>30){
-                        webgl.person.pause = false;
-                        webgl.setPersonDirectionAhead();
-                    }
-                }
+                // if(webgl.person.touchAllow){
+                //     if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)<-30){//手指向上滑动
+                //         if(three.camera.position.z<5000){
+                //             webgl.person.pause = false;
+                //             webgl.setPersonDirectionBack();
+                //         }
+                //     }
+                //     if((e.originalEvent.changedTouches[0].pageY-main.touch.StartY)>30){
+                //         webgl.person.pause = false;
+                //         webgl.setPersonDirectionAhead();
+                //     }
+                // }
             },
         });
         $(window).on("orientationchange",function(e){
