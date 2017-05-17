@@ -1185,6 +1185,16 @@
         };
         this.sceneSize = 0;
 
+        //文字
+        this.textData = {
+            text1:$(".text1")[0],
+            text2:$(".text3")[0],
+            text3:$(".text3")[0],
+            text4:$(".text4")[0],
+            text5:$(".text5")[0],
+            text6:$(".text6")[0],
+        };
+
         //地板
         this.floorData = {
 
@@ -1267,15 +1277,30 @@
             three.scene.add(this.gallery[prop].obj);//n个画廊加进场景
         }
 
-        //n个画廊长度分别设置、对每一个画廊物体设置全局位置globalZ
+        //n个画廊长度分别设置
         for(var prop in this.galleryData){//遍历画廊中物体占据的z方向空间
-
-            //n个画廊总长度
-            this.galleryData[prop].globalZ = -this.sceneSize;
-            this.sceneSize += this.galleryData[prop].space;
             //某个画廊长度
             this.gallery[this.galleryData[prop].group].space += this.galleryData[prop].space;
+            //n个画廊总长度
+            this.sceneSize += this.galleryData[prop].space;
         }
+
+        for(var prop in this.galleryData){//对每一个画廊物体计算全局位置globalZ
+            var group = this.galleryData[prop].group;
+            var groupNum = parseInt(group.substr(-1,1));
+            if(groupNum == 1){
+                this.galleryData[prop].globalZ = this.galleryData[prop].position.z;
+            }
+            else{
+                for(var i = 1;i<groupNum;i++){
+                    this.galleryData[prop].globalZ = -this.gallery["group"+(i-1)].space+this.galleryData[prop].position.z;
+                }
+            }
+
+
+        }
+
+
 
         //平面相机
         this.OrthoCamera = new THREE.OrthographicCamera(-three.width/2,three.width/2,three.height/2,-three.height/2,1,20000);
@@ -1459,7 +1484,7 @@
                     //         }
                     //         three.camera.position.z += this.person.speed;
                     // };
-                    webgl.person.direction = webgl.person.speed ? webgl.person.speed/Math.abs(webgl.person.speed) : 0;
+                    webgl.person.direction = webgl.person.speed ? webgl.person.speed/Math.abs(webgl.person.speed) : 0;//速度方向处理
                     if(three.camera.position.z+this.person.speed>=5000){//回到起点就暂停
                         three.camera.position.z = 5000;
                         webgl.person.pause = true;
@@ -1469,35 +1494,32 @@
                     }
                     if((three.camera.position.z+this.person.speed) <-this.sceneSize){
                         three.camera.position.z = -this.sceneSize;
-                        this.person.end = true;
+                        // this.person.end = true;
+                        this.person.speed*=-1;
                         console.log("end")
                     }
-                    console.log(three.camera.position.z)
+
                 }
 
                 switch(webgl.person.direction){
                     case 0:
                         break;
                     case 1://后退
+
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.tree1.globalZ)&&(three.camera.position.z<= this.galleryData.tree1.globalZ)){
                             console.log(this.galleryData.tree1.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.zmqh.globalZ)&&(three.camera.position.z<= this.galleryData.zmqh.globalZ)){
                             console.log(this.galleryData.zmqh.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.oldman.globalZ)&&(three.camera.position.z<= this.galleryData.oldman.globalZ)){
                             console.log(this.galleryData.oldman.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.tree2.globalZ)&&(three.camera.position.z<= this.galleryData.tree2.globalZ)){
                             console.log(this.galleryData.tree2.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.cloud1.globalZ)&&(three.camera.position.z<= this.galleryData.cloud1.globalZ)){
                             console.log(this.galleryData.cloud1.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.tree3.globalZ)&&(three.camera.position.z<= this.galleryData.tree3.globalZ)){
                             console.log(this.galleryData.tree3.name);
@@ -1505,97 +1527,154 @@
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.deer.globalZ)&&(three.camera.position.z<= this.galleryData.deer.globalZ)){
                             console.log(this.galleryData.deer.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.tree4.globalZ)&&(three.camera.position.z<= this.galleryData.tree4.globalZ)){
                             console.log(this.galleryData.tree4.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.oilLight.globalZ)&&(three.camera.position.z<= this.galleryData.oilLight.globalZ)){
                             console.log(this.galleryData.oilLight.name);
-                            break;
+
                         }
 
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.cloud2.globalZ)&&(three.camera.position.z<= this.galleryData.cloud2.globalZ)){
                             console.log(this.galleryData.cloud2.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.tree5.globalZ)&&(three.camera.position.z<= this.galleryData.tree5.globalZ)){
                             console.log(this.galleryData.tree5.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.house1.globalZ)&&(three.camera.position.z<= this.galleryData.house1.globalZ)){
                             console.log(this.galleryData.house1.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.house2.globalZ)&&(three.camera.position.z<= this.galleryData.house2.globalZ)){
                             console.log(this.galleryData.house2.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) > this.galleryData.tree6.globalZ)&&(three.camera.position.z<= this.galleryData.tree6.globalZ)){
                             console.log(this.galleryData.tree6.name);
-                            break;
+                        }
+                        if(((three.camera.position.z + this.person.speed) > this.galleryData.circle1.globalZ)&&(three.camera.position.z<= this.galleryData.circle1.globalZ)){
+                            console.log(this.galleryData.circle1.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) > this.galleryData.circle2.globalZ)&&(three.camera.position.z<= this.galleryData.circle2.globalZ)){
+                            console.log(this.galleryData.circle2.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) > this.galleryData.Edison.globalZ)&&(three.camera.position.z<= this.galleryData.Edison.globalZ)){
+                            console.log(this.galleryData.Edison.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) > (this.galleryData.lightOuter.globalZ+500))&&(three.camera.position.z<= (this.galleryData.lightOuter.globalZ+500))){
+                            webgl.person.touchAllow = false;
+                            this.person.pause = true;
+                            this.galleryData.lightPoint.mesh.scale.x-=0.05;
+                            this.galleryData.lightPoint.mesh.scale.y-=0.05;
+                            if(this.galleryData.lightPoint.mesh.scale.x <= 0.01){
+                                // this.galleryData.lightPoint.mesh.scale.x = 0
+                                this.person.pause = false;
+                                webgl.person.touchAllow = true;
+                            }
+                        }
+                        if(((three.camera.position.z + this.person.speed) > this.galleryData.lightOuter.globalZ)&&(three.camera.position.z<= this.galleryData.lightOuter.globalZ)){
+                            console.log(this.galleryData.lightOuter.name);
+                            three.scene.background = this.bgData.bg1.texture;
+                        }
+                        if(((three.camera.position.z + this.person.speed) > this.galleryData.light1.globalZ)&&(three.camera.position.z<= this.galleryData.light1.globalZ)){
+                            console.log(this.galleryData.light1.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) > this.galleryData.lightPoint.globalZ)&&(three.camera.position.z<= this.galleryData.lightPoint.globalZ)){
+                            console.log(this.galleryData.lightPoint.name);
                         }
                     case -1://向前
+
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.tree1.globalZ)&&(three.camera.position.z >= this.galleryData.tree1.globalZ)){
                             console.log(this.galleryData.tree1.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.zmqh.globalZ)&&(three.camera.position.z >= this.galleryData.zmqh.globalZ)){
                             console.log(this.galleryData.zmqh.name);
-                            break;
                         }
 
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.oldman.globalZ)&&(three.camera.position.z >= this.galleryData.oldman.globalZ)){
                             console.log(this.galleryData.oldman.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.tree2.globalZ)&&(three.camera.position.z >= this.galleryData.tree2.globalZ)){
                             console.log(this.galleryData.tree2.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.cloud1.globalZ)&&(three.camera.position.z >= this.galleryData.cloud1.globalZ)){
                             console.log(this.galleryData.cloud1.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.tree3.globalZ)&&(three.camera.position.z >= this.galleryData.tree3.globalZ)){
                             console.log(this.galleryData.tree3.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.deer.globalZ)&&(three.camera.position.z >= this.galleryData.deer.globalZ)){
                             console.log(this.galleryData.deer.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.tree4.globalZ)&&(three.camera.position.z >= this.galleryData.tree4.globalZ)){
                             console.log(this.galleryData.tree4.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.oilLight.globalZ)&&(three.camera.position.z >= this.galleryData.oilLight.globalZ)){
                             console.log(this.galleryData.oilLight.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.cloud2.globalZ)&&(three.camera.position.z >= this.galleryData.cloud2.globalZ)){
                             console.log(this.galleryData.cloud2.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.tree5.globalZ)&&(three.camera.position.z >= this.galleryData.tree5.globalZ)){
                             console.log(this.galleryData.tree5.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.house1.globalZ)&&(three.camera.position.z >= this.galleryData.house1.globalZ)){
                             console.log(this.galleryData.house1.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.house2.globalZ)&&(three.camera.position.z >= this.galleryData.house2.globalZ)){
                             console.log(this.galleryData.house2.name);
-                            break;
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.tree6.globalZ)&&(three.camera.position.z >= this.galleryData.tree6.globalZ)){
                             console.log(this.galleryData.tree6.name);
-                            break;
+                        }
+                        if(((three.camera.position.z + this.person.speed) < this.galleryData.circle1.globalZ)&&(three.camera.position.z >= this.galleryData.circle1.globalZ)){
+                            console.log(this.galleryData.circle1.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) < this.galleryData.circle2.globalZ)&&(three.camera.position.z >= this.galleryData.circle2.globalZ)){
+                            console.log(this.galleryData.circle2.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) < this.galleryData.Edison.globalZ)&&(three.camera.position.z >= this.galleryData.Edison.globalZ)){
+
+                            console.log(this.galleryData.Edison.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) < (this.galleryData.lightOuter.globalZ+500))&&(three.camera.position.z >= (this.galleryData.lightOuter.globalZ+500))) {
+                                webgl.person.touchAllow = false;
+                                this.person.pause = true;
+                                this.galleryData.lightPoint.mesh.scale.x += 0.05;
+                                this.galleryData.lightPoint.mesh.scale.y += 0.05;
+
+                                if (this.galleryData.lightPoint.mesh.scale.x >= 5) {
+                                    this.person.pause = false;
+                                    webgl.person.touchAllow = true;
+                                    three.scene.background = this.bgData.bg2.texture;
+                                }
+
+                        }
+                        if(((three.camera.position.z + this.person.speed) < this.galleryData.lightOuter.globalZ)&&(three.camera.position.z >= this.galleryData.lightOuter.globalZ)){
+                            console.log(this.galleryData.lightOuter.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) < this.galleryData.light1.globalZ)&&(three.camera.position.z >= this.galleryData.light1.globalZ)){
+                            console.log(this.galleryData.light1.name);
+                        }
+                        if(((three.camera.position.z + this.person.speed) < this.galleryData.lightPoint.globalZ)&&(three.camera.position.z >= this.galleryData.lightPoint.globalZ)){
+                            console.log(this.galleryData.lightPoint.name);
                         }
 
                 }
+
+                var distance;
+                distance = three.camera.position.z-this.galleryData.zmqh.globalZ;
+                this.textData.text1.style.opacity = Math.abs(Math.abs(2000-(distance>3500 ? 3500:distance<500?500:distance))/1500-1);
+                distance = three.camera.position.z-this.galleryData.deer.globalZ;
+                this.textData.text2.style.opacity = Math.abs(Math.abs(2000-(distance>3500 ? 3500:distance<500?500:distance))/1500-1);
+                distance = three.camera.position.z-this.galleryData.oilLight.globalZ;
+                this.textData.text3.style.opacity = Math.abs(Math.abs(2000-(distance>3500 ? 3500:distance<500?500:distance))/1500-1);
+                distance = three.camera.position.z-this.galleryData.house1.globalZ;
+                this.textData.text4.style.opacity = Math.abs(Math.abs(2000-(distance>3500 ? 3500:distance<500?500:distance))/1500-1);
+                // this.textData.text2.css("opacity",Math.abs(Math.abs(2000-((three.camera.position.z-this.galleryData.oldman.globalZ)>3500 ? 3500:(three.camera.position.z-this.galleryData.oldman.globalZ)<500?500:(three.camera.position.z-this.galleryData.oldman.globalZ)))/1500-1));
+                // this.textData.text3.css("opacity",Math.abs(Math.abs(2000-((three.camera.position.z-this.galleryData.deer.globalZ)>3500 ? 3500:(three.camera.position.z-this.galleryData.deer.globalZ)<500?500:(three.camera.position.z-this.galleryData.deer.globalZ)))/1500-1));
+                // this.textData.text4.css("opacity",Math.abs(Math.abs(2000-((three.camera.position.z-this.galleryData.oilLight.globalZ)>3500 ? 3500:(three.camera.position.z-this.galleryData.oilLight.globalZ)<500?500:(three.camera.position.z-this.galleryData.oilLight.globalZ)))/1500-1));
+                // this.textData.text5.css("opacity",Math.abs(Math.abs(2000-((three.camera.position.z-this.galleryData.house1.globalZ)>3500 ? 3500:(three.camera.position.z-this.galleryData.house1.globalZ)<500?500:(three.camera.position.z-this.galleryData.house1.globalZ)))/1500-1));
+                // this.textData.text6.css("opacity",Math.abs(Math.abs(2000-((three.camera.position.z-this.galleryData.lightPoint.globalZ)>3500 ? 3500:(three.camera.position.z-this.galleryData.lightPoint.globalZ)<500?500:(three.camera.position.z-this.galleryData.lightPoint.globalZ)))/1500-1));
 
 
 
