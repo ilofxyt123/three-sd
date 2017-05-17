@@ -517,11 +517,12 @@
         //第一视角
         this.person = {
             direction:0,//1代表向前,-1代表后退
-            speed:-20,
+            speed:-5,
             touchAllow:true,
             pause:false,
             start:false,
             end:false,
+            waitStart:true,
         };
 
         //图片资源路径
@@ -529,6 +530,66 @@
 
         //画廊
         this.galleryData = {
+            startLight : {
+                name:"startDoor",
+                index:0,
+                url:this.path+"14.png",
+                size:{x:400,y:400},//图片大小
+                position:{x:0,y:-100,z:4001},//在当前group中的相对位置
+                rotation:{x:0,y:0,z:0},//相对自身的中心旋转
+                scale:{x:0.2,y:0.2,z:1},
+                group:"gallery1",
+                mesh:undefined,//loading完后赋值
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:-300,y:600,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                    {
+                        position:{x:500,y:700,z:-3000},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    }
+                ],
+                animation:{
+                    dir:1,
+                },
+            },
+            startDoor : {
+                name:"startDoor",
+                index:0,
+                url:this.path+"door.png",
+                size:{x:640,y:628},//图片大小
+                position:{x:0,y:-200,z:4000},//在当前group中的相对位置
+                rotation:{x:0,y:0,z:0},//相对自身的中心旋转
+                scale:{x:1,y:1,z:1},
+                group:"gallery1",
+                mesh:undefined,//loading完后赋值
+                needTouch:false,
+                space:0,//占用空间
+                globalZ:0,
+
+                number:1,
+                cloneData:[
+                    {
+                        position:{x:-300,y:600,z:0},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    },
+                    {
+                        position:{x:500,y:700,z:-3000},
+                        rotation:{x:0,y:0,z:0},
+                        scale:{x:1,y:1,z:1},
+                    }
+                ],
+            },
+
 
             tree1:{
                 name:"tree1",
@@ -1462,14 +1523,78 @@
             this.gallery[galleryData[prop].group].obj.add(mesh);
         }
     };
-    webgl.render = function(){
-        if(this.person.start&&!this.person.end){
-            if(this.debug){//debug模式下，镜头不会自动向前移动
-                this.fps.update();
+    webgl.updatePosition = function(){
+        webgl.person.direction = webgl.person.speed ? webgl.person.speed/Math.abs(webgl.person.speed) : 0;//速度方向处理
+        if(three.camera.position.z+this.person.speed>=3500){//回到起点就暂停
+            three.camera.position.z = 3500;
+            webgl.person.pause = true;
+        }
+        if((three.camera.position.z+this.person.speed)>-this.sceneSize||(three.camera.position.z+this.person.speed)<3500){
+            three.camera.position.z+=this.person.speed;
+        }
+        if((three.camera.position.z+this.person.speed) <-this.sceneSize){
+            three.camera.position.z = -this.sceneSize;
+            // this.person.end = true;
+            this.person.speed*=-1;
+            console.log("end")
+        }
+
+    };
+    webgl.startFlash = function(){
+        if(this.person.waitStart){
+            switch(this.galleryData.startLight.animation.dir){
+            case 1://放大
+                if(this.galleryData.startLight.mesh.scale.x<0.5){
+                    this.galleryData.startLight.mesh.scale.x+=0.003;
+                    this.galleryData.startLight.mesh.scale.y+=0.003;
+                    this.galleryData.startLight.mesh.rotation.z+=0.005;
+                }
+                else{
+                    this.galleryData.startLight.animation.dir = -1;
+                }
+                break;
+            case -1://缩小
+                if(this.galleryData.startLight.mesh.scale.x>0.2){
+                    this.galleryData.startLight.mesh.scale.x-=0.003;
+                    this.galleryData.startLight.mesh.scale.y-=0.003;
+                    this.galleryData.startLight.mesh.rotation.z+=0.005;
+                }
+                else{
+                    this.galleryData.startLight.animation.dir = 1;
+                }
+                break;
+        }
+        }
+        else{
+            if(this.galleryData.startLight.mesh.scale.x<8){
+                this.galleryData.startLight.mesh.scale.x+=0.1;
+                this.galleryData.startLight.mesh.scale.y+=0.1;
+                this.galleryData.startLight.mesh.rotation.z+=0.005;
             }
+            else{
+                if(three.camera.position.z>3500){
+                    three.camera.position.z+=this.person.speed;
+                }
+                else{
+                    this.person.start = true;
+                }
+                // this.galleryData.startLight.mesh.rotation.z+=0.005;
+            }
+        }
+    };
+
+    webgl.render = function(){
+        if(!this.person.start){
+            this.startFlash();
+        }
+        else{
+            if(!this.person.end){
+                if(this.debug){//debug模式下，镜头不会自动向前移动
+                    this.fps.update();
+                }
 
                 /*控制前进后退*/
-                if(!this.person.pause&&!this.person.end){
+                if(!this.person.pause){
                     // switch(this.person.direction){
                     //     case 0:
                     //         break;
@@ -1485,21 +1610,7 @@
                     //         }
                     //         three.camera.position.z += this.person.speed;
                     // };
-                    webgl.person.direction = webgl.person.speed ? webgl.person.speed/Math.abs(webgl.person.speed) : 0;//速度方向处理
-                    if(three.camera.position.z+this.person.speed>=5000){//回到起点就暂停
-                        three.camera.position.z = 5000;
-                        webgl.person.pause = true;
-                    }
-                    if((three.camera.position.z+this.person.speed)>-this.sceneSize||(three.camera.position.z+this.person.speed)<5000){
-                        three.camera.position.z+=this.person.speed;
-                    }
-                    if((three.camera.position.z+this.person.speed) <-this.sceneSize){
-                        three.camera.position.z = -this.sceneSize;
-                        // this.person.end = true;
-                        this.person.speed*=-1;
-                        console.log("end")
-                    }
-
+                    this.updatePosition()
                 }
 
                 switch(webgl.person.direction){
@@ -1638,16 +1749,16 @@
                             console.log(this.galleryData.Edison.name);
                         }
                         if(((three.camera.position.z + this.person.speed) < (this.galleryData.lightOuter.globalZ+500))&&(three.camera.position.z >= (this.galleryData.lightOuter.globalZ+500))) {
-                                webgl.person.touchAllow = false;
-                                this.person.pause = true;
-                                this.galleryData.lightPoint.mesh.scale.x += 0.05;
-                                this.galleryData.lightPoint.mesh.scale.y += 0.05;
+                            webgl.person.touchAllow = false;
+                            this.person.pause = true;
+                            this.galleryData.lightPoint.mesh.scale.x += 0.05;
+                            this.galleryData.lightPoint.mesh.scale.y += 0.05;
 
-                                if (this.galleryData.lightPoint.mesh.scale.x >= 5) {
-                                    this.person.pause = false;
-                                    webgl.person.touchAllow = true;
-                                    three.scene.background = this.bgData.bg2.texture;
-                                }
+                            if (this.galleryData.lightPoint.mesh.scale.x >= 5) {
+                                this.person.pause = false;
+                                webgl.person.touchAllow = true;
+                                three.scene.background = this.bgData.bg2.texture;
+                            }
 
                         }
                         if(((three.camera.position.z + this.person.speed) < this.galleryData.lightOuter.globalZ)&&(three.camera.position.z >= this.galleryData.lightOuter.globalZ)){
@@ -1757,6 +1868,8 @@
                 // }
 
 
+
+            }
 
         }
 
@@ -2109,7 +2222,7 @@
             },
             touchmove:function(e){
                 if(!webgl.person.touchAllow){return;}
-                if(!webgl.person.start){webgl.person.start = true;};
+                if(webgl.person.waitStart){webgl.person.waitStart = false;return;};
                 // webgl.person.pause = true;
                 if((e.originalEvent.changedTouches[0].pageY-main.touch.lastY)<-3){//手指向上滑动
                     // if(three.camera.position.z<5000){
