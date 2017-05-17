@@ -529,6 +529,7 @@
 
         //画廊
         this.galleryData = {
+
             tree1:{
                 name:"tree1",
                 index:0,

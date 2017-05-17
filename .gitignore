@@ -15,3 +15,5 @@ js/three.js
 js/tool.js
 js/browser.js
 js/dat.gui.min.js
+*.zip
+music/music.ogg
